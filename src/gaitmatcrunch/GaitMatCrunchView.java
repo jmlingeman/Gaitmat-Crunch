@@ -23,6 +23,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import java.util.ArrayList;
 
 /**
  * The application's main frame.
@@ -1728,18 +1729,36 @@ public class GaitMatCrunchView extends FrameView {
         Subject sub;
         String study, id, trial, temp;
         String[] fileArray;
+        ArrayList<String> errs = new ArrayList<String>(filenames.length);
+        
         for (String s : filenames) {
             if(s.startsWith(".")) {
                 continue;
             }
+            
+            // process the filename
             sub = null;
             System.out.println(s);
 
             fileArray = s.split("-");
-            System.out.println(s);
+            
+            /* Check fileArray size to avoid oob err.
+             * If there aren't at least 3 parts, add to list of bad files and continue.
+             */
+            if(fileArray.length < 3){
+                errs.add(s);
+                continue;
+            }
+            // extract trial number with workaround for SOM naming convention.
             trial = fileArray[fileArray.length - 1].toLowerCase().replace(".txt", "");
+            if(trial.contains("_")){
+                trial = trial.split("_")[0];
+            }
+            // extract id number
             id = fileArray[fileArray.length - 2];
+            // extract study code
             study = fileArray[fileArray.length - 3];
+            System.out.printf("Study: %s, ID: %s, Trial: %s\n",study,id,trial);
 //            study = temp.substring(temp.length() - 2, temp.length());
 
 //            study = s.split("#")[0].substring(0, s.split("#")[0].length()-1);
@@ -1762,6 +1781,23 @@ public class GaitMatCrunchView extends FrameView {
         }
         subjectNumList.setListData(subjectList);
         saver = new Saver(subjectList);
+        
+        // Display a dialogue message box with filenames that could not be processed.
+        // TODO : we should probably check to make sure the list isn't huge before outputting it.
+        int numerrs = errs.size();
+        if(numerrs > 0){
+            StringBuilder sb = new StringBuilder(1024);
+            
+            if(numerrs>10)
+                sb.append("Too many (").append(numerrs).append("files)");
+            else{
+                for(String f : errs){
+                    sb.append(f).append("\n");
+                }
+            }
+            JOptionPane.showMessageDialog(null,
+                    "Following files could not be processed:\n" + sb);
+        }
         batchImportDialog.setVisible(false);
     }//GEN-LAST:event_batchImportConfirmMouseReleased
 
@@ -1770,12 +1806,17 @@ public class GaitMatCrunchView extends FrameView {
     }//GEN-LAST:event_editSubButMouseClicked
 
     private void editSubButMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editSubButMouseReleased
-        Subject sub = (Subject)subjectNumList.getSelectedValue();
-        editSubIDText.setText(sub.id);
-        editSubStudyText.setText(sub.study);
-        editSubTestText.setText(sub.tdate);
-        editSubBirthText.setText(sub.bdate);
-        editSubDialog.setVisible(true);
+        if(subjectNumList.isSelectionEmpty() == true) {
+            JOptionPane.showMessageDialog(null, "A subject must be selected to edit.");
+        }
+        else{
+            Subject sub = (Subject)subjectNumList.getSelectedValue();
+            editSubIDText.setText(sub.id);
+            editSubStudyText.setText(sub.study);
+            editSubTestText.setText(sub.tdate);
+            editSubBirthText.setText(sub.bdate);
+            editSubDialog.setVisible(true);
+        }
     }//GEN-LAST:event_editSubButMouseReleased
 
     private void editSubConfirmMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editSubConfirmMouseReleased
