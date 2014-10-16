@@ -1749,11 +1749,7 @@ public class GaitMatCrunchView extends FrameView {
                 errs.add(s);
                 continue;
             }
-            // extract trial number with workaround for SOM naming convention.
             trial = fileArray[fileArray.length - 1].toLowerCase().replace(".txt", "");
-            if(trial.contains("_")){
-                trial = trial.split("_")[0];
-            }
             // extract id number
             id = fileArray[fileArray.length - 2];
             // extract study code

@@ -1,3 +1,5 @@
 /dist/
 /build/
 /nbproject/private/
+.DS_Store
+gaitCrunchDatabase.db
