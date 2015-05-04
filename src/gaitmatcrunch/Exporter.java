@@ -119,8 +119,17 @@ public class Exporter {
 
 //       w.velocity = ((first.heel.x - last.toe.x) * 1.27)
 //               / (last.onset - first.onset);
+	   /*
        w.velocity = ((first.footfall.get(0).x - last.footfall.get(0).x) * 1.27)
                / (last.onset - first.onset);
+			   */
+	   // Calculate velocity by dividing the sum of step lengths by the duration from first footfall onset to last footfall onset.
+	   // May change to last footfall offset later.
+	   dist = 0;
+	   for(int i=0; i<w.walk.size()-1; i++){
+		   dist+= w.walk.get(i).getStepLength();
+	   }
+	   w.velocity = dist/(last.onset-first.onset);
 
    }
 
