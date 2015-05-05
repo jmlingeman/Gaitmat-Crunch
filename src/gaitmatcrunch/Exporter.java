@@ -13,16 +13,17 @@ import java.io.FileWriter;
  * @author j4lingeman
  */
 public class Exporter {
-        /* Methods to create:
-         * Double Support (and % of stride)
-         * Single Support (and % of stride)
-         * Velocity
-         * Step length
-         * Step width
-         * Stride length
-         * Swing time
-         * Dynamic Base (angle between steps)
-         */
+    /* Methods to create:
+     * Double Support (and % of stride)
+     * Single Support (and % of stride)
+     * Velocity
+     * Step length
+     * Step width
+     * Stride length
+     * Swing time
+     * Dynamic Base (angle between steps)
+     * Cycle Duration
+     */
 
     public Exporter (Walk w) {
         setWalkStats(w);
@@ -115,9 +116,16 @@ public class Exporter {
      */
     private void calculateCycleDuration(Walk w){
         // Iterate over 1st to second-to-last footfalls
-        Footfall pf = w.getStep(0);
-        for(int i = 1; i<w.walk.size()-2; i++){
-            Footfall nf = w.getStep(i+1);
+        Footfall pf = w.getStep(0); // previous footfall, init to first
+        Footfall cf = w.getStep(1); // current footfall, init to second
+        
+        // iterate from 3rd to last footfall to calculate cycle durations
+        for(int i = 2; i<w.walk.size()-1; i++){
+            Footfall nf = w.getStep(i);
+            double cycleDuration = Math.abs(nf.onset-pf.onset);
+            cf.setCycleDuration(cycleDuration);
+            pf = cf;
+            cf = nf;
         }
     }
 
