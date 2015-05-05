@@ -108,6 +108,18 @@ public class Exporter {
         w.totalSingleSupport = sumSingle;
 //        w.time += sumSingle;
     }
+    
+    /* Calculates the cycle duration for each foot.  Consulted DKL on definition:
+     * The cycle duration for each footfall is the duration between the onset of
+     * the previous step and the onset of the next step.
+     */
+    private void calculateCycleDuration(Walk w){
+        // Iterate over 1st to second-to-last footfalls
+        Footfall pf = w.getStep(0);
+        for(int i = 1; i<w.walk.size()-2; i++){
+            Footfall nf = w.getStep(i+1);
+        }
+    }
 
    /* CalculateVelocity():
     * Calculates the average speed of the run in cm/s according to the time
@@ -119,18 +131,21 @@ public class Exporter {
 
 //       w.velocity = ((first.heel.x - last.toe.x) * 1.27)
 //               / (last.onset - first.onset);
-	   /*
        w.velocity = ((first.footfall.get(0).x - last.footfall.get(0).x) * 1.27)
                / (last.onset - first.onset);
-			   */
-	   // Calculate velocity by dividing the sum of step lengths by the duration from first footfall onset to last footfall onset.
-	   // May change to last footfall offset later.
-	   dist = 0;
+   }
+
+	/* Calculate velocity by dividing the sum of step lengths by the duration from first footfall onset to last footfall onset.
+	 */
+   private void calculateVelocity2(Walk w) {
+	   Footfall first = w.walk.get(0);
+	   Footfall last = w.walk.get(w.walk.size()-1);
+
+           double dist = 0;
 	   for(int i=0; i<w.walk.size()-1; i++){
 		   dist+= w.walk.get(i).getStepLength();
 	   }
 	   w.velocity = dist/(last.onset-first.onset);
-
    }
 
    /* CalculateStepWidAndLen:
@@ -438,5 +453,6 @@ public class Exporter {
         calculateStepWidAndLen(w);
         calculateStrideLengths(w);
         calculateDynamicBase(w);
+        calculateCycleDuration(w);
    }
 }

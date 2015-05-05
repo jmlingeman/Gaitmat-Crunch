@@ -20,6 +20,7 @@ public class Footfall implements Comparable, Serializable {
     double onset, offset;
     double initialDoubleSupport, terminalDoubleSupport;
     double singleSupport;
+    double cycleDuration = 999;
     double stepWidth = 999, strideLength = 999, stepLength = 999;
     double dynbase = 999;
     int LeftOrRight;
@@ -85,6 +86,13 @@ public class Footfall implements Comparable, Serializable {
     public void setTerminalDoubleSupport(double terminalDoubleSupport) {
         this.terminalDoubleSupport = terminalDoubleSupport;
     }
+    
+    public double getCycleDuration(){
+        return cycleDuration;
+    }
+    public void setCycleDuration(double dur){
+        cycleDuration = dur;
+    }
 
     public double getOffset() {
         return offset;
@@ -102,14 +110,21 @@ public class Footfall implements Comparable, Serializable {
         this.onset = onset;
     }
 
+    /* Base constructor.*/
+    public Footfall(int objNum, Vector<Point> points){
+        this.objNum = objNum;
+        this.footfall = points;
+    }
+    
+    /* No params constructor.  Calls 1-param with default value -1.
+     */
     public Footfall() {
-        objNum = -1;
-        footfall = new Vector<Point>();
+        this(-1);
     }
 
+    /* Single int constructor.  Assigns empty vector of points for footfall. */
     public Footfall(int objNum) {
-        this.objNum = objNum;
-        footfall = new Vector<Point>();
+        this(objNum, new Vector<Point>());
     }
 
     public void addPoint(Point p) {
