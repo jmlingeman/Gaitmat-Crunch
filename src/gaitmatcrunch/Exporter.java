@@ -112,20 +112,15 @@ public class Exporter {
     
     /* Calculates the cycle duration for each foot.  Consulted DKL on definition:
      * The cycle duration for each footfall is the duration between the onset of
-     * the previous step and the onset of the next step.
+     * the current step and the onset of two steps prior.
      */
-    private void calculateCycleDuration(Walk w){
-        // Iterate over 1st to second-to-last footfalls
-        Footfall pf = w.getStep(0); // previous footfall, init to first
-        Footfall cf = w.getStep(1); // current footfall, init to second
-        
+    private void calculateCycleDuration(Walk w){      
         // iterate from 3rd footfall to last footfall to calculate cycle durations
         for(int i = 2; i<w.walk.size()-1; i++){
-            Footfall nf = w.getStep(i);
-            double cycleDuration = Math.abs(nf.onset-pf.onset);
-            cf.setCycleDuration(cycleDuration);
-            pf = cf;
-            cf = nf;
+            Footfall curr = w.getStep(i);
+            Footfall prev = w.getStep(i-2);
+            double cycleDuration = curr.onset-prev.onset;
+            curr.setCycleDuration(cycleDuration);
         }
     }
 
@@ -413,7 +408,7 @@ public class Exporter {
            if(header) {
                temp = "#ID,Study,tDate,bDate,trialNum,objNum,onset,offset,LorR,heel x,"
                        + "heel y,toe x,toe y,initDoubleSup,termDoubleSup,"
-                       + "singleSupport,stepLen,stepWidth,strideLen,walkVelocity,dynamicBase\n";
+                       + "singleSupport,stepLen,stepWidth,strideLen,walkVelocity,dynamicBase,cycleDuration\n";
                write.append(temp);
            }
            for(int i = 0; i < s.walks.size(); i++) {
@@ -438,7 +433,8 @@ public class Exporter {
                        + String.valueOf(curFoot.stepWidth) + ','
                        + String.valueOf(curFoot.strideLength) + ','
                        + String.valueOf(curWalk.velocity) + ','
-                       + String.valueOf(curFoot.dynbase) + '\n';
+                       + String.valueOf(curFoot.dynbase) + ','
+                       + curFoot.cycleDuration + "\n";
                    write.append(temp);
                    write.flush();
                }

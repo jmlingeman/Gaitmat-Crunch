@@ -18,8 +18,8 @@ public class Footfall implements Comparable, Serializable {
     Vector<Point> footfall;
     Point heel, toe;
     double onset, offset;
-    double initialDoubleSupport, terminalDoubleSupport;
-    double singleSupport;
+    double initialDoubleSupport=999, terminalDoubleSupport=999;
+    double singleSupport=999;
     double cycleDuration = 999;
     double stepWidth = 999, strideLength = 999, stepLength = 999;
     double dynbase = 999;
