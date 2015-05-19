@@ -36,14 +36,20 @@ public class Exporter {
     }
 
     private void calculateTotalTime(Walk w) {
-        boolean debug = false;
-        if(debug){
+        int verbose = 1;
+        if(verbose>0){
+            System.out.println("Calculating total time for walk: " + w);
+        }
+        if(verbose>1){
             System.out.printf("Time 1: %f, Time 2: %f, Diff: %f\n",
                 w.walk.get(w.walk.size()-1).onset,
                 w.walk.get(0).onset,
                 w.walk.get(w.walk.size()-1).onset - w.walk.get(0).onset);
         }
         w.time = w.walk.get(w.walk.size()-1).offset - w.walk.get(0).onset;
+        if(verbose>0){
+            System.out.println("Finished calculating total time.");
+        }
     }
 
     /* This function will calculate the double support for each footfall
@@ -52,13 +58,17 @@ public class Exporter {
         Double support for the first step is always 0.
         Calculate the initial and temrinal seperately.*/
     private void calculateDoubleSupport(Walk w) {
-        boolean debug = false;
+        int verbose = 1;
+        if(verbose>0){
+            System.out.println("Calculating double support for walk: " + w);
+        }
+        
         //TODO: Do percentages as well as avgs
-
+        
         for(int i = 1; i < w.walk.size(); i++) {
             Footfall currentStep = w.walk.get(i);
             Footfall prevStep = w.walk.get(i-1);
-            if(debug){
+            if(verbose>1){
                 System.out.println(i + " " + prevStep.offset+ " "+ currentStep.onset + " "+ (prevStep.offset - currentStep.onset));
             }
             currentStep.setInitialDoubleSupport(prevStep.offset - currentStep.onset);
@@ -79,10 +89,16 @@ public class Exporter {
 //        w.time += culmDS + culmFlight;
         w.totalDoubleSupport = culmDS;
         w.totalFlight = culmFlight;
+        if(verbose>0){
+            System.err.println("Finished calculating double support.");
+        }
     }
 
     private void calculateSingleSupport(Walk w) {
-        boolean debug = false;
+        int verbose = 1;
+        if(verbose > 0){
+            System.out.println("Calculating single support for walk: " + w);
+        }
         double sumSingle = 0, cTime, initDS, termDS;
         for(int i = 1; i < w.walk.size() - 1; i++) {
             Footfall currentStep = w.walk.get(i);
@@ -108,7 +124,7 @@ public class Exporter {
 
             currentStep.setSingleSupport(cTime - prev - next);
 
-            if(debug){
+            if(verbose > 1){
                 System.out.println("Time: " + cTime + " InitDS: " + currentStep.getInitialDoubleSupport() + " TermDS: "
                     + currentStep.getTerminalDoubleSupport() + " SS: " + currentStep.getSingleSupport());
             }
@@ -116,19 +132,30 @@ public class Exporter {
         }
         w.totalSingleSupport = sumSingle;
 //        w.time += sumSingle;
+        if(verbose > 0){
+            System.out.println("Finished calculating single support.");
+        }
     }
     
     /* Calculates the cycle duration for each foot.  Consulted DKL on definition:
      * The cycle duration for each footfall is the duration between the onset of
      * the current step and the onset of two steps prior.
      */
-    private void calculateCycleDuration(Walk w){      
+    private void calculateCycleDuration(Walk w){   
+        int verbose = 1;
+        if(verbose>0){
+            System.out.println("Calculating cycle duration for walk: " + w);
+        }
         // iterate from 3rd footfall to last footfall to calculate cycle durations
         for(int i = 2; i<w.walk.size()-1; i++){
             Footfall curr = w.getStep(i);
             Footfall prev = w.getStep(i-2);
             double cycleDuration = curr.onset-prev.onset;
             curr.setCycleDuration(cycleDuration);
+        }
+        
+        if(verbose>0){
+            System.out.println("Finished calculating cycle duration.");
         }
     }
 
@@ -137,6 +164,11 @@ public class Exporter {
     * and distance between the first sensor contact and the last sensor contact.
     */
    private void calculateVelocity(Walk w) {
+       int verbose = 1;
+       if(verbose>0){
+           System.out.println("Calculating velocity for walk: " + w);
+       }
+       
        Footfall first = w.walk.get(0);
        Footfall last = w.walk.get(w.walk.size()-1);
 
@@ -144,6 +176,10 @@ public class Exporter {
 //               / (last.onset - first.onset);
        w.velocity = ((first.footfall.get(0).x - last.footfall.get(0).x) * 1.27)
                / (last.onset - first.onset);
+       
+       if(verbose>0){
+           System.out.println("Finished calculating velocity");
+       }
    }
 
 	/* Calculate velocity by dividing the sum of step lengths by the duration from first footfall onset to last footfall onset.
@@ -168,40 +204,47 @@ public class Exporter {
     * step step are then calculate.  An average is kept for reporting later.
     */
    private void calculateStepWidAndLen(Walk w) {
-        Footfall oppPrev, oppNext, current;
-        double sumStepLen = 0, sumStepWid = 0;
-        for(int i = 1; i < w.walk.size() - 1; i++) {
-            oppPrev = w.walk.get(i-1);
-            current = w.walk.get(i);
-            oppNext = w.walk.get(i+1);
+       int verbose = 1;
+       if(verbose>0){
+           System.out.println("Calculating step width and length for walk: " + w);
+       }
+       Footfall oppPrev, oppNext, current;
+       double sumStepLen = 0, sumStepWid = 0;
+       for(int i = 1; i < w.walk.size() - 1; i++) {
+           oppPrev = w.walk.get(i-1);
+           current = w.walk.get(i);
+           oppNext = w.walk.get(i+1);
 
-            Point perpLine = calculatePerpLinePoint(oppPrev.heel,
+           Point perpLine = calculatePerpLinePoint(oppPrev.heel,
                     oppNext.heel, current.heel);
-            Point L = calculateLineIntersect(oppPrev.heel, oppNext.heel,
+           Point L = calculateLineIntersect(oppPrev.heel, oppNext.heel,
                     current.heel, perpLine);
 
-            int crossStep = 1;
-            if(current.LeftOrRight == 1 && L.y < current.heel.y) {
+           int crossStep = 1;
+           if(current.LeftOrRight == 1 && L.y < current.heel.y) {
                 crossStep = -1;
-            }
-            else if(current.LeftOrRight == 0 && L.y > current.heel.y) {
+           }
+           else if(current.LeftOrRight == 0 && L.y > current.heel.y) {
                 crossStep = -1;
-            }
-            
-            // This direction is because of the way we position our runners
-            int negLen = 1;
-            if(oppPrev.heel.x < current.heel.x) {
-                negLen = -1;
-            }
+           }
 
-            current.setStepWidth(crossStep * calculateLineLength(current.heel, L));
-            current.setStepLength(negLen * calculateLineLength(oppPrev.heel, L));
-            sumStepWid += current.getStepWidth();
-            sumStepLen += current.getStepLength();
-        }
-        w.avgStepWid = sumStepWid / w.walk.size();
-        w.avgStepLen = sumStepLen / w.walk.size();
+           // This direction is because of the way we position our runners
+           int negLen = 1;
+           if(oppPrev.heel.x < current.heel.x) {
+               negLen = -1;
+           }
 
+           current.setStepWidth(crossStep * calculateLineLength(current.heel, L));
+           current.setStepLength(negLen * calculateLineLength(oppPrev.heel, L));
+           sumStepWid += current.getStepWidth();
+           sumStepLen += current.getStepLength();
+       }
+       w.avgStepWid = sumStepWid / w.walk.size();
+       w.avgStepLen = sumStepLen / w.walk.size();
+       
+       if(verbose>0){
+           System.out.println("Finished calculating step width and step length.");
+       }
    }
 
    /* CalculateStrideLengths:
@@ -210,6 +253,11 @@ public class Exporter {
     * of the line of progression between heel point and heel point.
     */
    private void calculateStrideLengths(Walk w) {
+       int verbose = 1;
+       if(verbose>0){
+           System.out.println("Calculating stride length for walk: " + w);
+       }
+       
        Footfall oppPrev, current, oppNext;
        double sumStrideLen = 0;
        for(int i = 1; i < w.walk.size() - 1; i++) {
@@ -221,6 +269,10 @@ public class Exporter {
            sumStrideLen += current.getStrideLength();
        }
        w.avgStrideLen = sumStrideLen / w.walk.size();
+       
+       if(verbose>0){
+           System.out.println("Finished calculating stide length.");
+       }
    }
 
    private double dotProduct(Point A, Point B) {
@@ -247,6 +299,10 @@ public class Exporter {
    }
 
    private void calculateDynamicBase(Walk w) {
+       int verbose = 1;
+       if(verbose>0){
+           System.out.println("Calculating dynamic base angle for walk : " + w);
+       }
        Footfall oppPrev, current, oppNext;
        Point anchor, prev, next;
        double angle = 0, len1 = 0, len2 = 0, dotproduct = 0;
@@ -268,8 +324,10 @@ public class Exporter {
            v2.y = anchor.y - next.y;
            
            current.dynbase = angleDegree(v1, v2);
-
-
+       }
+       
+       if(verbose>0){
+           System.out.println("Finished calculating dynamic base angle.");
        }
    }
 
@@ -458,14 +516,13 @@ public class Exporter {
       
    public void setWalkStats(Walk w) {
        w.time = 0;
-        calculateTotalTime(w);
-
-        calculateDoubleSupport(w);
-        calculateSingleSupport(w);
-        calculateVelocity(w);
-        calculateStepWidAndLen(w);
-        calculateStrideLengths(w);
-        calculateDynamicBase(w);
-        calculateCycleDuration(w);
+       calculateTotalTime(w);
+       calculateDoubleSupport(w);
+       calculateSingleSupport(w);
+       calculateVelocity(w);
+       calculateStepWidAndLen(w);
+       calculateStrideLengths(w);
+       calculateDynamicBase(w);
+       calculateCycleDuration(w);
    }
 }
