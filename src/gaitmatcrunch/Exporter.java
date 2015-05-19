@@ -36,10 +36,13 @@ public class Exporter {
     }
 
     private void calculateTotalTime(Walk w) {
-        System.out.printf("Time 1: %f, Time 2: %f, Diff: %f\n",
+        boolean debug = false;
+        if(debug){
+            System.out.printf("Time 1: %f, Time 2: %f, Diff: %f\n",
                 w.walk.get(w.walk.size()-1).onset,
                 w.walk.get(0).onset,
                 w.walk.get(w.walk.size()-1).onset - w.walk.get(0).onset);
+        }
         w.time = w.walk.get(w.walk.size()-1).offset - w.walk.get(0).onset;
     }
 
@@ -49,13 +52,15 @@ public class Exporter {
         Double support for the first step is always 0.
         Calculate the initial and temrinal seperately.*/
     private void calculateDoubleSupport(Walk w) {
-
+        boolean debug = false;
         //TODO: Do percentages as well as avgs
 
         for(int i = 1; i < w.walk.size(); i++) {
             Footfall currentStep = w.walk.get(i);
             Footfall prevStep = w.walk.get(i-1);
-            System.out.println(i + " " + prevStep.offset+ " "+ currentStep.onset + " "+ (prevStep.offset - currentStep.onset));
+            if(debug){
+                System.out.println(i + " " + prevStep.offset+ " "+ currentStep.onset + " "+ (prevStep.offset - currentStep.onset));
+            }
             currentStep.setInitialDoubleSupport(prevStep.offset - currentStep.onset);
             prevStep.setTerminalDoubleSupport(prevStep.offset - currentStep.onset);
         }
@@ -77,6 +82,7 @@ public class Exporter {
     }
 
     private void calculateSingleSupport(Walk w) {
+        boolean debug = false;
         double sumSingle = 0, cTime, initDS, termDS;
         for(int i = 1; i < w.walk.size() - 1; i++) {
             Footfall currentStep = w.walk.get(i);
@@ -102,8 +108,10 @@ public class Exporter {
 
             currentStep.setSingleSupport(cTime - prev - next);
 
-            System.out.println("Time: " + cTime + " InitDS: " + currentStep.getInitialDoubleSupport() + " TermDS: "
+            if(debug){
+                System.out.println("Time: " + cTime + " InitDS: " + currentStep.getInitialDoubleSupport() + " TermDS: "
                     + currentStep.getTerminalDoubleSupport() + " SS: " + currentStep.getSingleSupport());
+            }
             sumSingle += currentStep.getSingleSupport();
         }
         w.totalSingleSupport = sumSingle;
