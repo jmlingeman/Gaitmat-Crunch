@@ -220,6 +220,10 @@ public class Exporter {
            Point L = calculateLineIntersect(oppPrev.heel, oppNext.heel,
                     current.heel, perpLine);
 
+           // Quickfix for L==null
+           if(L==null)
+               continue;
+           
            int crossStep = 1;
            if(current.LeftOrRight == 1 && L.y < current.heel.y) {
                 crossStep = -1;
@@ -375,7 +379,7 @@ public class Exporter {
         return null;
       } else {
         double z = (sx*(qy-py)+sy*(px-qx))/det;
-        if (z==0 ||  z==1) return null;  // intersection at end point!
+        if (z==0 || z==1) return null;  // intersection at end point!
         Point i = new Point();
         i.x = (double)(px+z*rx);
         i.y = (double)(py+z*ry);
