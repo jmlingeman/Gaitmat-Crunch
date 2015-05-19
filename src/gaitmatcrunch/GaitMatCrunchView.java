@@ -133,6 +133,12 @@ public class GaitMatCrunchView extends FrameView {
         {
             super.paintComponent(g);
             if(points != null) {
+                // BOUND drawTime to [0,points.size-1]
+                if(drawTime>points.size()-1)
+                    drawTime = points.size()-1;
+                else if(drawTime<0)
+                    drawTime = 0;
+                
                 double ontime = points.get(drawTime).onset;
                 double offtime = points.get(drawTime).offset;
                 System.out.println("ON OFF TIMES: " + ontime + " "+ offtime);
