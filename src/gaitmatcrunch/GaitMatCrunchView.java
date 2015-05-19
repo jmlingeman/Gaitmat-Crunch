@@ -1916,6 +1916,7 @@ public class GaitMatCrunchView extends FrameView {
             try{
                 FileWriter writer = new FileWriter(file, true);
                 for(Subject s : subjectList) {
+                    System.out.println("Exporting " + s);
                     Exporter e = new Exporter(s);
                     e.exportToSingleFile(s, writer, false);
                 }
